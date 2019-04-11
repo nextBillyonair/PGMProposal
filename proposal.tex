@@ -122,28 +122,36 @@ their choice of posterior distributions for our parameters.
 \subsection{Maximum Likelihood Estimation (MLE)}
 Our baseline model will consist of an equivalent CNN trained in the normal setting,
 providing a point estimate through \textit{Maximum Likelihood Estimation}.
-This will give us an idea on how skew effects non-Bayesian learning dynamics.
-However, it is important to note that, from a Bayesian perspective, MLE is
-equivalent to \textit{Maximum a posteriori estimation} (MAP) with a uniform prior
-on the parameters.
+This will give us an idea on how skew effects point estimate learning dynamics.
+% However, it is important to note that, from a Bayesian perspective, MLE is
+% equivalent to \textit{Maximum a posteriori estimation} (MAP) with a uniform prior
+% on the parameters.
 
 \section{Software}
 This project will make use of Pyro\footnote{http://pyro.ai}, a
 probabilistic programming language using PyTorch\footnote{https://pytorch.org}
 to enable a unified framework for building neural networks and Bayesian modeling.
 
+% \section{Proposed Analysis}
+% For this project, we expect to analyze several results:
+% \subsection{Skew Performance}
+% For each level of skew, we will evaluate the performance in terms of accuracy,
+% and attempt to ascribe confidence intervals on our Bayesian models for confidence
+% of prediction.
+% \subsection{Parameter Estimates}
+% We can analyze a subset of the parameters and graph the MLE point estimate alongside
+% its posterior beliefs. These evaluation tests will allow us to determine if the
+% model is confident and if our approximations can capture the true posterior
+% effectively.
+
 \section{Proposed Analysis}
 For this project, we expect to analyze several results:
 \subsection{Skew Performance}
 For each level of skew, we will evaluate the performance in terms of accuracy,
-and attempt to ascribe confidence intervals on our Bayesian models for confidence
-of prediction.
-\subsection{Parameter Estimates}
-We can analyze a subset of the parameters and graph the MLE point estimate alongside
-its posterior beliefs. These evaluation tests will allow us to determine if the
-model is confident and if our approximations can capture the true posterior
-effectively.
-
+and attempt to ascribe confidence intervals on our Bayesian models for predictions.
+\subsection{Parameter Posterior Estimates}
+Since we are working with CNNs, we can sample kernels that may provide interesting
+insight into the distribution of feature extraction.
 
 % ------------------------------
 
