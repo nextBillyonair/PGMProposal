@@ -25,6 +25,7 @@
 \usepackage{amsfonts}       % blackboard math symbols
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{microtype}      % microtypography
+\usepackage{amsmath}
 \usepackage{tikz}
 \usetikzlibrary{calc}
 \usetikzlibrary{bayesnet}
@@ -37,7 +38,7 @@
 \usepackage{caption}
 \usepackage{subcaption}
 
-\title{Proposal: Add Idea Here}
+\title{The Effects of Skew on Convolutional Bayesian Neural Network Performance}
 
 % The \author macro works with any number of authors. There are two commands
 % used to separate the names and addresses of multiple authors: \And and \AND.
@@ -59,52 +60,94 @@
 \maketitle
 
 \begin{abstract}
-  The abstract
+  We will examine the effect of a skewed classification task on Bayesian Neural
+  Networks. We will attempt to perform parameter learning via Bayesian approaches
+  to approximate parameter posterior distributions and compare the model's
+  robustness to skew with a regular network.
 \end{abstract}
 
 \section{Introduction}
+Consider the simplest neural network, consisting of a single feature $x \in \mathbb{R}$ and
+prediction $y \in \mathbb{R}$ as follows:
+\begin{equation}
+  y = w \cdot x + b
+\end{equation}
+Usually, we would use frequentist approaches to solve for a point estimate of
+the feature weight $w$ and bias term $b$, either through stochastic gradient
+descent or ordinary least squares.
+However, lets consider a Bayesian Neural Network with Gaussian priors:
+\begin{equation}
+  \centering
+  \begin{split}
+    w \; \sim & \; \mathcal{N}\left( \mu_w,\; \sigma^2_w \right) \\
+    b \; \sim & \; \mathcal{N}\left( \mu_b,\; \sigma^2_b \right) \\
+    y \; = & \; w \cdot x + b \\
+    y \; \sim & \; \mathcal{N}\left( x \cdot \mu_w + \mu_b,\; x^2 \cdot \sigma^2_w + \sigma^2_b \right) \\
+  \end{split}
+\end{equation}
+We can use a Bayesian approach to yield a posterior belief about our parameters
+$w$ and $b$, which allows us to ascribe an uncertainty to our predictions with confidence intervals.
+We can also sample models and aggregate predictions to form a more
+robust predictor given the data.
+However, the derivation of the posterior distribution can be intractable, and
+hence we can use variational inference methods and Monte Carlo sampling as an
+approximation to the true posterior.
 
-\section{Data}
+\section{Data and Task}
+We plan to use the Rijkmuseum Dataset \cite{Rijksmuseum} to perform artist
+classification. However, we will explore how skew will effect our model's
+generalization to a test set. The Rijkmuseum Dataset is heavily skewed,
+with 90 artists having over 200 pieces, Rembrant alone with 1,384 pieces, out of
+a total collection with 6,629 artists. Hence this dataset will easily provide a
+skewed setting for experimentation.
 
-\section{Learning Task}
-% talk about methods
-\section{Inference Task}
+We will constrain the classification problem to fewer artists, filtering out
+lesser-known artists and controlling the skew manually. We will train a model
+using several methods, and perform an inference task on predicting the artists.
+
+\section{Methods}
+We will train our network using 2 Bayesian methods and compare it with a regular
+neural network as our baseline.
+\subsection{Stochastic Variational Inference (SVI)}
+As detailed in Hoffman et. al \cite{SVI}, we can approximate the posterior
+distributions by using \textit{Stochastic Variational Inference}. Here, the
+task is transformed from a complex inference problem into a stochastic
+optimization problem that follows noisy estimates of the gradient to
+maximize the \textit{evidence lower bound} by repeatedly subsampling the data.
+\subsection{Markov Chain Monte Carlo (MCMC)}
+We will attempt a \textit{Markov Chain Monte Carlo} approach using the No-U Turn Sampler
+(NUTS) \cite{NUTS} to provide a sampling-based method to extract the posterior
+distributions of our parameters. We can compare both Bayesian approaches in
+their choice of posterior distributions for our parameters.
+\subsection{Maximum Likelihood Estimation (MLE)}
+Our baseline model will consist of an equivalent CNN trained in the normal setting,
+providing a point estimate through \textit{Maximum Likelihood Estimation}.
+This will give us an idea on how skew effects non-Bayesian learning dynamics.
+However, it is important to note that, from a Bayesian perspective, MLE is
+equivalent to \textit{Maximum a posteriori estimation} (MAP) with a uniform prior
+on the parameters.
 
 \section{Software}
+This project will make use of Pyro\footnote{http://pyro.ai}, a
+probabilistic programming language using PyTorch\footnote{https://pytorch.org}
+to enable a unified framework for building neural networks and Bayesian modeling.
 
-\section{Future Work}
+\section{Proposed Analysis}
+For this project, we expect to analyze several results:
+\subsection{Skew Performance}
+For each level of skew, we will evaluate the performance in terms of accuracy,
+and attempt to ascribe confidence intervals on our Bayesian models for confidence
+of prediction.
+\subsection{Parameter Estimates}
+We can analyze a subset of the parameters and graph the MLE point estimate alongside
+its posterior beliefs. These evaluation tests will allow us to determine if the
+model is confident and if our approximations can capture the true posterior
+effectively.
 
 
-% \begin{table}
-%   \caption{Sample table title}
-%   \label{sample-table}
-%   \centering
-%   \begin{tabular}{lll}
-%     \toprule
-%     \multicolumn{2}{c}{Part}                   \\
-%     \cmidrule(r){1-2}
-%     Name     & Description     & Size ($\mu$m) \\
-%     \midrule
-%     Dendrite & Input terminal  & $\sim$100     \\
-%     Axon     & Output terminal & $\sim$10      \\
-%     Soma     & Cell body       & up to $10^6$  \\
-%     \bottomrule
-%   \end{tabular}
-% \end{table}
+% ------------------------------
 
-\section*{References}
-
-[1] Alexander, J.A.\ \& Mozer, M.C.\ (1995) Template-based algorithms for
-connectionist rule extraction. In G.\ Tesauro, D.S.\ Touretzky and T.K.\ Leen
-(eds.), {\it Advances in Neural Information Processing Systems 7},
-pp.\ 609--616. Cambridge, MA: MIT Press.
-
-[2] Bower, J.M.\ \& Beeman, D.\ (1995) {\it The Book of GENESIS: Exploring
-  Realistic Neural Models with the GEneral NEural SImulation System.}  New York:
-TELOS/Springer--Verlag.
-
-[3] Hasselmo, M.E., Schnell, E.\ \& Barkai, E.\ (1995) Dynamics of learning and
-recall at excitatory recurrent synapses and cholinergic modulation in rat
-hippocampal region CA3. {\it Journal of Neuroscience} {\bf 15}(7):5249-5262.
+\bibliographystyle{abbrv}
+\bibliography{proposal}
 
 \end{document}
