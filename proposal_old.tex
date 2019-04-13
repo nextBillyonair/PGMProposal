@@ -1,0 +1,162 @@
+\documentclass{article}
+
+% if you need to pass options to natbib, use, e.g.:
+%     \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading neurips_2018
+
+% ready for submission
+% \usepackage{neurips_2018}
+
+% to compile a preprint version, e.g., for submission to arXiv, add add the
+% [preprint] option:
+%     \usepackage[preprint]{neurips_2018}
+
+% to compile a camera-ready version, add the [final] option, e.g.:
+     \usepackage[final]{neurips_2018}
+
+% to avoid loading the natbib package, add option nonatbib:
+%     \usepackage[nonatbib]{neurips_2018}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{amsmath}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usetikzlibrary{bayesnet}
+\usetikzlibrary{arrows}
+\usepackage{color}
+\usepackage{array}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\usepackage{caption}
+\usepackage{subcaption}
+
+\title{The Effects of Skew on Convolutional Bayesian Neural Network Performance}
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to break the
+% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
+% authors names on the first line, and the last on the second line, try using
+% \AND instead of \And before the third author name.
+
+\author{%
+  William Watson \\
+  Johns Hopkins University\\
+  \texttt{billwatson@jhu.edu} \\
+}
+
+\begin{document}
+% \nipsfinalcopy is no longer used
+
+\maketitle
+
+\begin{abstract}
+  We will examine the effect of a skewed classification task on Bayesian Neural
+  Networks. We will attempt to perform parameter learning via Bayesian approaches
+  to approximate parameter posterior distributions and compare the model's
+  robustness to skew with a regular network.
+\end{abstract}
+
+\section{Introduction}
+Consider the simplest neural network, consisting of a single feature $x \in \mathbb{R}$ and
+prediction $y \in \mathbb{R}$ as follows:
+\begin{equation}
+  y = w \cdot x + b
+\end{equation}
+Usually, we would use frequentist approaches to solve for a point estimate of
+the feature weight $w$ and bias term $b$, either through stochastic gradient
+descent or ordinary least squares.
+However, lets consider a Bayesian Neural Network with Gaussian priors:
+\begin{equation}
+  \centering
+  \begin{split}
+    w \; \sim & \; \mathcal{N}\left( \mu_w,\; \sigma^2_w \right) \\
+    b \; \sim & \; \mathcal{N}\left( \mu_b,\; \sigma^2_b \right) \\
+    y \; = & \; w \cdot x + b \\
+    y \; \sim & \; \mathcal{N}\left( x \cdot \mu_w + \mu_b,\; x^2 \cdot \sigma^2_w + \sigma^2_b \right) \\
+  \end{split}
+\end{equation}
+We can use a Bayesian approach to yield a posterior belief about our parameters
+$w$ and $b$, which allows us to ascribe an uncertainty to our predictions with confidence intervals.
+We can also sample models and aggregate predictions to form a more
+robust predictor given the data.
+However, the derivation of the posterior distribution can be intractable, and
+hence we can use variational inference methods and Monte Carlo sampling as an
+approximation to the true posterior.
+
+\section{Data}
+We plan to use the Rijkmuseum Dataset \cite{Rijksmuseum} to perform artist
+classification. However, we will explore how skew will effect our model's
+generalization to a test set. The Rijkmuseum Dataset is heavily skewed,
+with 90 artists having over 200 pieces, Rembrant alone with 1,384 pieces, out of
+a total collection with 6,629 artists. Hence this dataset will easily provide a
+skewed setting for experimentation.
+
+We will constrain the classification problem to fewer artists, filtering out
+lesser-known artists and controlling the skew manually. We will train a model
+using several methods, and perform an inference task on predicting the artists.
+
+% More like inference
+\section{Methods}
+We will train our network using 2 Bayesian methods and compare it with a regular
+neural network as our baseline.
+\subsection{Stochastic Variational Inference (SVI)}
+As detailed in Hoffman et. al \cite{SVI}, we can approximate the posterior
+distributions by using \textit{Stochastic Variational Inference}. Here, the
+task is transformed from a complex inference problem into a stochastic
+optimization problem that follows noisy estimates of the gradient to
+maximize the \textit{evidence lower bound} by repeatedly subsampling the data.
+\subsection{Markov Chain Monte Carlo (MCMC)}
+We will attempt a \textit{Markov Chain Monte Carlo} approach using the No-U Turn Sampler
+(NUTS) \cite{NUTS} to provide a sampling-based method to extract the posterior
+distributions of our parameters. We can compare both Bayesian approaches in
+their choice of posterior distributions for our parameters.
+\subsection{Maximum Likelihood Estimation (MLE)}
+Our baseline model will consist of an equivalent CNN trained in the normal setting,
+providing a point estimate through \textit{Maximum Likelihood Estimation}.
+This will give us an idea on how skew effects point estimate learning dynamics.
+% However, it is important to note that, from a Bayesian perspective, MLE is
+% equivalent to \textit{Maximum a posteriori estimation} (MAP) with a uniform prior
+% on the parameters.
+
+\section{Software}
+This project will make use of Pyro\footnote{http://pyro.ai}, a
+probabilistic programming language using PyTorch\footnote{https://pytorch.org}
+to enable a unified framework for building neural networks and Bayesian modeling.
+
+% \section{Proposed Analysis}
+% For this project, we expect to analyze several results:
+% \subsection{Skew Performance}
+% For each level of skew, we will evaluate the performance in terms of accuracy,
+% and attempt to ascribe confidence intervals on our Bayesian models for confidence
+% of prediction.
+% \subsection{Parameter Estimates}
+% We can analyze a subset of the parameters and graph the MLE point estimate alongside
+% its posterior beliefs. These evaluation tests will allow us to determine if the
+% model is confident and if our approximations can capture the true posterior
+% effectively.
+
+\section{Proposed Analysis}
+For this project, we expect to analyze several results:
+\subsection{Skew Performance}
+For each level of skew, we will evaluate the performance in terms of accuracy,
+and attempt to ascribe confidence intervals on our Bayesian models for predictions.
+\subsection{Parameter Posterior Estimates}
+Since we are working with CNNs, we can sample kernels that may provide interesting
+insight into the distribution of feature extraction.
+
+% ------------------------------
+
+\bibliographystyle{abbrv}
+\bibliography{proposal}
+
+\end{document}
