@@ -65,15 +65,15 @@
 
 \begin{abstract}
   In statistical classification, there are two main approaches to learning:
-  \textit{generative} and \textit{discriminative}. I outline a procedure
-  to explore the performance of corresponding probabilistic graphical models
-  on a simple image classification task.
+  \textit{generative} and \textit{discriminative}. This proposal will outline
+  a procedure to explore the performance of corresponding probabilistic
+  graphical models on a simple classification task.
 \end{abstract}
 
 \section{Introduction}
-For a classification task, I are interested in the probability distribution
+For a classification task, we are interested in the probability distribution
 of a class label $y$ conditioned on the sample features $\mathbf{x}$,
-written as $p(y\,|\,\mathbf{x})$. However, I can approach modeling this
+written as $p(y\,|\,\mathbf{x})$. We can approach modeling this
 distribution in two ways: \textit{generative} or \textit{discriminative}.
 
 \begin{figure*}[h!]
@@ -102,11 +102,9 @@ distribution in two ways: \textit{generative} or \textit{discriminative}.
 
 \subsection{Generative Approach}
 A generative model is a statistical process to describe the observed data
-$\mathbf{x}$. More specifically, generative classifiers, as mentioned by
-Ng and Jordan (2002) \cite{NgJordan}, seek to
-model the joint probability $p(\mathbf{x},\, y)$ of the inputs $\mathbf{x}$ and
-the labels $y$. I can then make predictions with Bayes rule as
-follows:
+$\mathbf{x}$. More specifically, generative classifiers seek to
+model the joint probability $p(\mathbf{x},\, y)$ from our data\cite{NgJordan}.
+Predictions can be made with Bayes rule as follows:
 \begin{equation}
   \hat{y} \,=\, \argmax_y \, p(\mathbf{x}, \,y) \,=\, \argmax_y \, p(y \,|\, \mathbf{x}) \, p(\mathbf{x}) \,=\, \argmax_y \, p(\mathbf{x} \,|\, y) \, p(y)
 \end{equation}
@@ -114,28 +112,30 @@ follows:
 \subsection{Discriminative Approach}
 In contrast, a discriminative model is a statistical process to describe
 relations between the observed data $\mathbf{x}$ and some latent variables
-$\mathbf{h}$. For discriminative classifiers, our latent variables are class
-labels $y$, and I can model the posterior distribution $p(y\,|\,\mathbf{x})$
-directly \cite{NgJordan}. Hence our prediction becomes:
+$\mathbf{h}$. For discriminative classifiers, the latent variables are class
+labels $y$, and model the posterior distribution $p(y\,|\,\mathbf{x})$
+directly \cite{NgJordan}. Hence, prediction becomes:
 \begin{equation}
   \hat{y} \,=\, \argmax_y \, p(y \,|\, \mathbf{x})
 \end{equation}
 
 \section{Data}
-I plan to use the Rijkmuseum Dataset \cite{Rijksmuseum} to perform artist
-classification. However, to make parameter estimation and inference tractable,
-I will constrain the classification problem to fewer artists and downsample
-the images.
+I will use the Rijkmuseum Dataset \cite{Rijksmuseum} to perform type categorization.
+However, to make parameter estimation and inference tractable,
+the problem will be converted to a binary (paintings/photos) task. Images
+will be downsampled in size and color encoding to reduce the variable and
+state space. There are 3,583 paintings (\textit{schilderij}) and 2,269 photos
+(\textit{foto}).
 
 % to reduce word count and size this is a temp section, use what I wrote for actual papers
 
 \section{Models}
-In order to facilitate comparisons between the generative and discriminative
-approach to classification, I will explore both the static and general versions
+In order to compare generative and discriminative
+approaches to classification, I will explore their static and general versions,
 as outlined in Figure \ref{fig:models}.
 
 \subsection{Baseline}
-Our baseline model will consist of a \textit{Naive Bayes} classifier, a simple generative
+The baseline model will consist of a \textit{Naive Bayes} classifier, a simple generative
 Bayesian network that assumes all the features $x_i \in \mathbf{x}$ are
 independent from one another and the sole parent is the class label $y$. This
 assumption simplifies the factorization for the joint distribution.
@@ -144,17 +144,16 @@ The discriminative analog to Naive Bayes is \textit{Logistic Regression}, which 
 also a naive classifier, yet models the conditional probability directly.
 
 \subsection{General}
-The general counterparts to our baseline models are the generative
+The general counterparts to the baseline models are the generative
 \textit{General Bayesian Network} and its discriminative analog
 \textit{Conditional Random Fields (CRFs)}.
 
-General Bayesian Networks are generative probabilistic models that
+General Bayesian Networks are probabilistic models that
 encode the conditional dependencies of its variables via a directed acyclic
 graph. Each variable is dependent only on its parents,
-allowing for more complex interactions
-between our features.
+allowing for more complex interactions between the features.
 
-CRFs are a discriminative undirected probabilistic graphical model whose
+CRFs are an undirected probabilistic graphical model whose
 nodes can be partitioned into two disjoint sets: $\mathbf{x}$ and $\mathbf{y}$,
 and models the conditional distribution $p(\mathbf{y}\, | \, \mathbf{x})$
 directly.
@@ -252,7 +251,7 @@ directly.
 % The generative Naive Bayes classifier is a simple Bayesian network: it assumes
 % each feature $x_i \in \mathbf{x}$
 % is independent of one another, with class label $y$ as the sole parent node for all $x_i$.
-% Hence, our model factorizes as follows:
+% Hence, the model factorizes as follows:
 % \begin{equation}
 %   \begin{split}
 %     p(y\, | \, x_1, \dots, x_n) \;\propto& \;\; p(y) \, \prod_{i=1}^n p(x_i \,|\, y) \\
@@ -297,38 +296,34 @@ directly.
 
 % END SECTION
 
-\section{Parameter Estimation Task}
-For the generative models, I will use Maximum Likelihood Estimation
-to learn the parameters of the model.
+\section{Parameter Estimation}
+Parameter estimation for generative models will use Maximum Likelihood Estimation.
+Logistic Regression will optimize its parameters via the L-BFGS algorithm.
+CRFs will use an approach depending on the library used (Section \ref{software}).
 
-Logistic Regression will use the L-BFGS optimization algorithm, while
-General CRFs will use a cutting plane approach
-to optimize a quadratic programming problem, as outline by
-M{\"u}ller et. al (2014) \cite{pystruct} and Memisevic (2006) \cite{memisevic}.
+\section{Inference}
+Inference for generative models will use belief propagation, if tractable.
+Otherwise, variational or sampling methods \cite{NUTS} will be
+used to approximate the conditional posterior.
 
-\section{Inference Task}
-For inference in predicting the correct class label $y$ with our
-generative models, I will use belief
-propagation, if possible. Otherwise I will use Markov Chain Monte Carlo (MCMC)
-sampling methods with NUTS \cite{NUTS} to approximate our posteriors.
-
-For our discriminative models, CRFs will use the suite of inference algorithms
-provided by OpenGM \cite{opengm}, including Loopy Belief Propagation or
-Gibbs sampling. It is important to note that for CRFs, just like Markov Random Fields,
-the problem of exact inference can be intractable, hence the
-usage of approximation algorithms. Logistic Regression models $p(y \, | \, x)$,
-and hence inference can be seen as a sampling technique.
+CRF inference will use loopy belief propagation or sampling techniques,
+since exact inference is intractable in general graphs.
+However, since Logistic Regression is a tree, message passing algorithms
+yield exact solutions.
 
 \section{Software}
-This project will use OpenGM \cite{opengm}, PyStruct \cite{pystruct},
-pgmpy\footnote{http://pgmpy.org}, and scitkit-learn \cite{scikit-learn} to
-create, learning, and perform inference tasks with our models.
-OpenCV \cite{opencv} will be used for image preprocessing and downsampling.
+\label{software}
+This project will use OpenCV \cite{opencv} for image processing.
+Our generative models will use pgmpy\footnote{http://pgmpy.org} for learning
+and inference. Logistic Regression can be learned with scitkit-learn \cite{scikit-learn}.
+CRFs will either use PyStruct \cite{pystruct} or R's CRF library\footnote{https://cran.r-project.org/web/packages/CRF/index.html},
+depending on which library is easier to integrate with the preferred structure of
+the task.
 
 % \section{Additional Ideas}
 % If the aforementioned outline is tractable, then I could also look into
 % structured learning for Bayesian networks, running the PC algorithm to find
-% a good representation of our image network.
+% a good representation of the image network.
 
 % Might have to nix formulas and shorten descriptions
 
