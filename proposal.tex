@@ -42,7 +42,8 @@
 \usepackage{caption}
 \usepackage{subcaption}
 
-\title{Analysis of Discriminative and Generative Graphical Models on Image Classification}
+\title{The Effect of Image Interpolation on the Generalization of Generative and Discriminative Graphical Models}
+% Analysis of Image Interpolation on the Learnability of Generative and Discriminative Graphical Models
 
 % The \author macro works with any number of authors. There are two commands
 % used to separate the names and addresses of multiple authors: \And and \AND.
@@ -65,12 +66,13 @@
 
 \begin{abstract}
   In statistical classification, there are two main approaches to learning:
-  \textit{generative} and \textit{discriminative}. This proposal will outline
-  a procedure to explore the performance of corresponding probabilistic
-  graphical models on a simple classification task.
+  \textit{generative} and \textit{discriminative}. In computer vision,
+  \textit{image interpolation} is a method to rescale images. This proposal will
+  outline a procedure to explore the generalization ability of graphical models
+  when downsampling images to various sizes.
 \end{abstract}
 
-\section{Introduction}
+\section{Generative and Discriminative Modeling}
 For a classification task, we are interested in the probability distribution
 of a class label $y$ conditioned on the sample features $\mathbf{x}$,
 written as $p(y\,|\,\mathbf{x})$. We can approach modeling this
@@ -101,18 +103,20 @@ distribution in two ways: \textit{generative} or \textit{discriminative}.
 \end{figure*}
 
 \subsection{Generative Approach}
-A generative model is a statistical process to describe the observed data
-$\mathbf{x}$. More specifically, generative classifiers seek to
-model the joint probability $p(\mathbf{x},\, y)$ from our data\cite{NgJordan}.
+% A generative model is a statistical process to describe the observed data
+% $\mathbf{x}$. More specifically,
+Generative classifiers seek to
+model the joint probability $p(\mathbf{x},\, y)$ from our data \cite{NgJordan}.
 Predictions can be made with Bayes rule as follows:
 \begin{equation}
   \hat{y} \,=\, \argmax_y \, p(\mathbf{x}, \,y) \,=\, \argmax_y \, p(y \,|\, \mathbf{x}) \, p(\mathbf{x}) \,=\, \argmax_y \, p(\mathbf{x} \,|\, y) \, p(y)
 \end{equation}
 
 \subsection{Discriminative Approach}
-In contrast, a discriminative model is a statistical process to describe
-relations between the observed data $\mathbf{x}$ and some latent variables
-$\mathbf{h}$. For discriminative classifiers, the latent variables are class
+% In contrast, a discriminative model is a statistical process to describe
+% relations between the observed data $\mathbf{x}$ and some latent variables
+% $\mathbf{h}$.
+For discriminative classifiers, the latent variables are class
 labels $y$, and model the posterior distribution $p(y\,|\,\mathbf{x})$
 directly \cite{NgJordan}. Hence, prediction becomes:
 \begin{equation}
@@ -121,11 +125,10 @@ directly \cite{NgJordan}. Hence, prediction becomes:
 
 \section{Data}
 I will use the Rijkmuseum Dataset \cite{Rijksmuseum} to perform type categorization.
-However, to make parameter estimation and inference tractable,
-the problem will be converted to a binary (paintings/photos) task. Images
-will be downsampled in size and color encoding to reduce the variable and
-state space. There are 3,583 paintings (\textit{schilderij}) and 2,269 photos
-(\textit{foto}).
+There will be 4 classes (print, drawings, paintings, photos) to make the problem difficult
+yet not intractable. There are 9,077 images for this sub-task, split evenly between classes,
+and we will use image interpolation to test various downsampling sizes and how well
+our models can learn the underlying distributions.
 
 % to reduce word count and size this is a temp section, use what I wrote for actual papers
 
@@ -137,8 +140,8 @@ as outlined in Figure \ref{fig:models}.
 \subsection{Baseline}
 The baseline model will consist of a \textit{Naive Bayes} classifier, a simple generative
 Bayesian network that assumes all the features $x_i \in \mathbf{x}$ are
-independent from one another and the sole parent is the class label $y$. This
-assumption simplifies the factorization for the joint distribution.
+independent from one another and the sole parent is the class label $y$.
+% This assumption simplifies the factorization for the joint distribution.
 
 The discriminative analog to Naive Bayes is \textit{Logistic Regression}, which is
 also a naive classifier, yet models the conditional probability directly.
@@ -311,14 +314,19 @@ since exact inference is intractable in general graphs.
 However, since Logistic Regression is a tree, message passing algorithms
 yield exact solutions.
 
+\section{Experiment}
+To measure the generalziation ability of our models, we plan to train each one
+on different sets of downsampled images. For instance, we plan to examine the
+errors in training and test of a 1x1 downsampled image, and increment in powers
+of 2. This will provide details on the effect of the number of features required
+to get good accuracy.
+
 \section{Software}
 \label{software}
 This project will use OpenCV \cite{opencv} for image processing.
-Our generative models will use pgmpy\footnote{http://pgmpy.org} for learning
-and inference. Logistic Regression can be learned with scitkit-learn \cite{scikit-learn}.
-CRFs will either use PyStruct \cite{pystruct} or R's CRF library\footnote{https://cran.r-project.org/web/packages/CRF/index.html},
-depending on which library is easier to integrate with the preferred structure of
-the task.
+Our bayesian networks will use pgmpy\footnote{http://pgmpy.org}.
+Naive Bayes and Logistic Regression can be learned with scitkit-learn \cite{scikit-learn}.
+CRFs will use R's CRF library\footnote{https://cran.r-project.org/web/packages/CRF/index.html}.
 
 % \section{Additional Ideas}
 % If the aforementioned outline is tractable, then I could also look into
