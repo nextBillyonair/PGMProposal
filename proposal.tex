@@ -42,8 +42,7 @@
 \usepackage{caption}
 \usepackage{subcaption}
 
-\title{The Effect of Image Interpolation on the Generalization of Generative and Discriminative Graphical Models}
-% Analysis of Image Interpolation on the Learnability of Generative and Discriminative Graphical Models
+\title{The Effect of Image Interpolation on the Generalization of Generative and Discriminative Models}
 
 % The \author macro works with any number of authors. There are two commands
 % used to separate the names and addresses of multiple authors: \And and \AND.
@@ -315,11 +314,12 @@ However, since Logistic Regression is a tree, message passing algorithms
 yield exact solutions.
 
 \section{Experiment}
-To measure the generalization ability of our models, we plan to train each one
-on different sets of downsampled images. For instance, we plan to examine the
-errors in training and test of a 1x1 downsampled image, and increment in powers
-of 2. This will provide details on the effect of the number of features required
-to get good accuracy.
+Image Interpolations offers an intelligent way to perform dimensionality
+reduction. For our experiments, we will start with a 256x256 color image, and
+decrement the size in powers of 2. By contracting the feature space, and thus
+inducing loss of information, we can examine
+the effectiveness of generative and discriminative models on classifciation
+tasks. Even though we are losing information, it might help in test generalization.
 
 \section{Software}
 \label{software}
